@@ -4,6 +4,8 @@ import base64
 
 DEBUG = True
 
+PPRINT = True
+
 ATTR_NAME_RECORDS = 'Records'
 
 EXAMPLE_TEST_EVENT = {
@@ -28,6 +30,17 @@ EXAMPLE_TEST_EVENT = {
 }
 
 
+def p_print_debug_data(data: any):
+
+    if DEBUG is False:
+        return
+
+    if PPRINT is True:
+        print(pformat(data))
+    else:
+        print(data)
+
+
 def d_print(statement: str):
 
     if DEBUG is True:
@@ -41,7 +54,7 @@ def lambda_handler(event, context):
 
     d_print(f'In Lambda handler.')
     d_print('event is:')
-    d_print(pformat(event))
+    p_print_debug_data(event)
     d_print(f'Type of event is: {type(event)}')
     d_print('context is:')
     d_print(context)
@@ -65,7 +78,8 @@ def lambda_handler(event, context):
 
 
 def handle_event(event: dict):
-    print('In handle_event()...')
+
+    d_print('In handle_event()...')
 
     if ATTR_NAME_RECORDS not in event:
         raise Exception(f'Required attribute: {ATTR_NAME_RECORDS} missing in received event data.')
@@ -91,7 +105,7 @@ def process_record(record: dict) -> dict:
 
     payload = base64.b64decode(record['kinesis']['data'])
     d_print('\nDecoded kinesis data Payload as:')
-    d_print(pformat(payload))
+    p_print_debug_data(payload)
 
     return {'status': 'complete'}
 
