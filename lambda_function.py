@@ -28,7 +28,7 @@ def d_print(statement: str):
         print(statement)
 
 
-def lambda_handler(event, context):
+def lambda_handler(event):
     """"""
 
     print('Started lambda function execution...')
