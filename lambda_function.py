@@ -2,32 +2,13 @@ import json
 from pprint import pformat
 import base64
 
+from tests import data
+
 DEBUG = True
 
 PPRINT = True
 
 ATTR_NAME_RECORDS = 'Records'
-
-EXAMPLE_TEST_EVENT = {
-    "Records": [
-        {
-            "kinesis": {
-                "partitionKey": "partitionKey-03",
-                "kinesisSchemaVersion": "1.0",
-                "data": "SGVsbG8sIHRoaXMgaXMgYSB0ZXN0IDEyMy4=",
-                "sequenceNumber": "49545115243490985018280067714973144582180062593244200961",
-                "approximateArrivalTimestamp": 1428537600
-            },
-            "eventSource": "aws:kinesis",
-            "eventID": "shardId-000000000000:49545115243490985018280067714973144582180062593244200961",
-            "invokeIdentityArn": "arn:aws:iam::EXAMPLE",
-            "eventVersion": "1.0",
-            "eventName": "aws:kinesis:record",
-            "eventSourceARN": "arn:aws:kinesis:EXAMPLE",
-            "awsRegion": "ap-southeast-1"
-        }
-    ]
-}
 
 
 def p_print_debug_data(data: any):
@@ -51,15 +32,6 @@ def lambda_handler(event, context):
     """"""
 
     print('Started lambda function execution...')
-
-    d_print(f'In Lambda handler.')
-    d_print('event is:')
-    p_print_debug_data(event)
-    d_print(f'Type of event is: {type(event)}')
-    d_print('context is:')
-    d_print(context)
-
-    d_print(f'Type of context is: {type(context)}')
 
     try:
         handle_event(event)
@@ -103,13 +75,23 @@ def handle_event(event: dict):
 def process_record(record: dict) -> dict:
     """"""
 
-    payload = base64.b64decode(record['kinesis']['data'])
-    d_print('\nDecoded kinesis data Payload as:')
-    p_print_debug_data(payload)
+    _decoded_bytes_str = base64.b64decode(record['kinesis']['data']).decode('utf-8')
+    d_print('Decoded base64 string to bytes and decoded bytes to utf-8 string.')
+    desired_data = json.loads(_decoded_bytes_str)
+    d_print('Deserialized the json string to dictionary.')
+    d_print('\nRecord data is:')
+    p_print_debug_data(desired_data)
+
+    handler_response = datahandler_process(desired_data)
 
     return {'status': 'complete'}
 
 
+def datahandler_process(data: dict):
+
+    d_print('Starting datahandler with given data...')
+
+
 if __name__ == '__main__':
     dummy_context = {'name': 'test'}
-    lambda_handler(event=EXAMPLE_TEST_EVENT, context=dummy_context)
+    lambda_handler(event=data.REAL_KINESIS_DATA, context=dummy_context)
